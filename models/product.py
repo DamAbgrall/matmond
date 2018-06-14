@@ -13,16 +13,26 @@ class ProductProduct(models.Model):
 		purchases = self.env['purchase.order.line'].search([('product_id.id','=',self.product_variant_id.id)])
 		total = 0
 		qty=0
+		min = None
+		moyenne = 0
 		for purchase in purchases:
+			if min==None or min>purchase.price_unit:
+				min=purchase.price_unit
 			qty = qty + purchase.product_qty
 			total = total + purchase.price_unit
-		self.cout_achat_matmond = total/qty
-
+		moyenne = total/qty
+		self.cout_achat_matmond = (0.85*(moyenne+min)/2)*0.5
+		
 	def _compute_price(self):
-		sales = self.env['sale.order.line'].search([('product_id.id','=',self.product_variant_id.id)])
+		purchases = self.env['purchase.order.line'].search([('product_id.id','=',self.product_variant_id.id)])
 		total = 0
 		qty=0
-		for sale in sales:
-			qty = qty + sale.qty_to_invoice
-			total = total + sale.price_unit
-		self.prix_vente_ref = total/qty
+		min = None
+		moyenne = 0
+		for purchase in purchases:
+			if min==None or min>purchase.price_unit:
+				min=purchase.price_unit
+			qty = qty + purchase.product_qty
+			total = total + purchase.price_unit
+		moyenne = total/qty
+		self.prix_vente_ref = 0.85*(moyenne+min)/2
